@@ -1,4 +1,4 @@
-create database Alunos;
+CREATE DATABASE alunos;
 use Alunos;
 
 CREATE TYPE prioridade_enum AS ENUM ('baixa', 'media', 'alta');
