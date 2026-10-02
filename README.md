@@ -5,6 +5,6 @@ MySQL, SQL
 Julia Victoria Goulart
 Joao Pedro da Cunha Andrade
 Leonardo de Meira Aguiar
-Guiherme Cuiudo
+Guilherme Augusto Areia
 Ana Beatriz Santino Jorge
 
