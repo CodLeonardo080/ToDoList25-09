@@ -1,63 +1,123 @@
-CREATE DATABASE alunos;
-use Alunos;
-
-CREATE TYPE prioridade_enum AS ENUM ('baixa', 'media', 'alta');
+CREATE DATABASE agenda;
+USE agenda;
 
 CREATE TABLE usuarios (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE categorias (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
     nome VARCHAR(50) NOT NULL,
-    CONSTRAINT uq_user_cat UNIQUE (usuario_id, nome)
+
+    CONSTRAINT uq_user_cat UNIQUE (usuario_id, nome),
+
+    FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE tarefas (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    categoria_id INT REFERENCES categorias(id) ON DELETE SET NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    usuario_id INT NOT NULL,
+    categoria_id INT NULL,
+
     titulo VARCHAR(255) NOT NULL,
+    descricao TEXT,
+
     concluida BOOLEAN DEFAULT FALSE,
-    prioridade prioridade_enum DEFAULT 'media',
-    prazo TIMESTAMP,
+
+    prioridade ENUM('baixa', 'media', 'alta')
+        DEFAULT 'media',
+
+    prazo TIMESTAMP NULL,
+
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_prazo CHECK (prazo >= criado_em)
+
+    CONSTRAINT chk_prazo
+        CHECK (prazo IS NULL OR prazo >= criado_em),
+
+    FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (categoria_id)
+        REFERENCES categorias(id)
+        ON DELETE SET NULL
 );
 
 CREATE TABLE subtarefas (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    tarefa_id INT NOT NULL REFERENCES tarefas(id) ON DELETE CASCADE,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    tarefa_id INT NOT NULL,
+
     titulo VARCHAR(255) NOT NULL,
-    concluida BOOLEAN DEFAULT FALSE
+
+    concluida BOOLEAN DEFAULT FALSE,
+
+    FOREIGN KEY (tarefa_id)
+        REFERENCES tarefas(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE logs (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    acao VARCHAR(50) NOT NULL,
-    data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    usuario_id INT NOT NULL,
+
+    acao VARCHAR(100) NOT NULL,
+
+    data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE
 );
 
-CREATE OR REPLACE FUNCTION concluir_tarefa(p_id INT, p_user INT) RETURNS VOID AS $$
+DELIMITER $$
+
+CREATE PROCEDURE concluir_tarefa (
+    IN p_id INT,
+    IN p_user INT
+)
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM tarefas WHERE id = p_id AND usuario_id = p_user) THEN
-        RAISE EXCEPTION 'Acesso negado ou invalido';
+
+    DECLARE qtd_tarefa INT;
+    DECLARE qtd_subtarefas INT;
+  
+    SELECT COUNT(*)
+    INTO qtd_tarefa
+    FROM tarefas
+    WHERE id = p_id
+      AND usuario_id = p_user;
+
+    IF qtd_tarefa = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Acesso negado ou tarefa inexistente';
     END IF;
 
-    IF EXISTS (SELECT 1 FROM subtarefas WHERE tarefa_id = p_id AND NOT concluida) THEN
-        RAISE EXCEPTION 'Subtarefas pendentes';
+    SELECT COUNT(*)
+    INTO qtd_subtarefas
+    FROM subtarefas
+    WHERE tarefa_id = p_id
+      AND concluida = FALSE;
+
+    IF qtd_subtarefas > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Existem subtarefas pendentes';
     END IF;
 
-    UPDATE tarefas SET concluida = TRUE WHERE id = p_id;
-    INSERT INTO logs (usuario_id, acao) VALUES (p_user, 'CONCLUIDA_' || p_id);
-EXCEPTION 
-    WHEN OTHERS THEN
-        INSERT INTO logs (usuario_id, acao) VALUES (p_user, 'ERRO_' || SQLSTATE);
-        RAISE;
-END;
-$$ LANGUAGE plpgsql;
+    UPDATE tarefas
+    SET concluida = TRUE
+    WHERE id = p_id;
+
+    INSERT INTO logs(usuario_id, acao)
+    VALUES (p_user, CONCAT('CONCLUIDA_', p_id));
+
+END$$
+
+DELIMITER ;
