@@ -28,7 +28,6 @@ CREATE TABLE tarefa (
     categoria_id INT NULL,
 
     titulo VARCHAR(255) NOT NULL,
-    descricao TEXT,
 
     concluida BOOLEAN DEFAULT FALSE,
 
