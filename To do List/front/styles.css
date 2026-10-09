@@ -1,19 +1,30 @@
 body {
-
+background-color: rgb(158, 158, 158);
 }
 
 div {
-
+width: 25px;
+justify-content: center;
+text-align: center;
 }
 
 h1 {
+font-family: sans-serif;
 
 }
 
 button {
-
+width: 100px;
+height: 35px;
+text-align: center;
+justify-content: center;
+font-family: sans-serif;
 }
 
 input {
-    
+   height: 25px;
+   width: 200px;
+   text-align: center;
+   box-shadow: 10px;
+   box-shadow: 10px; 
 }
