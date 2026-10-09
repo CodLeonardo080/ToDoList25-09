@@ -90,9 +90,6 @@ BEGIN
     DECLARE qtd_tarefa INT;
     DECLARE qtd_subtarefas INT;
 
-    -- Verifica se a tarefa existe
-    -- e pertence ao usuario informado
-
     SELECT COUNT(*)
     INTO qtd_tarefa
     FROM tarefa
