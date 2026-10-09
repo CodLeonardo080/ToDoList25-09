@@ -81,8 +81,8 @@ CREATE TABLE logs (
 DELIMITER $$
 
 CREATE PROCEDURE concluir_tarefa (
-    IN p_id INT,
-    IN p_user INT
+    IN p_tarefa_id INT,
+    IN p_usuario_id INT
 )
 BEGIN
 
