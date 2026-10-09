@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    
+    <title>Lista de Tarefas</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="0">
-       <input type="text" placeholder="Ex: Arrumar o quarto...">
-       <button onclick="addTask"></button>
+    <div id="app">
+        <input type="text" id="taskInput" placeholder="Digite sua tarefa.....">
+        <button onclick="addTask()">Adicionar Tarefa</button>
+        <ul id="taskList"></ul>
     </div>
-
-
+    <script src="script.js"></script>
 </body>
-    <script>
 </html>
-
