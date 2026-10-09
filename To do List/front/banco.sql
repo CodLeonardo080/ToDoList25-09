@@ -78,6 +78,7 @@ CREATE TABLE logs (
         ON DELETE CASCADE
 );
 
+
 DELIMITER $$
 
 CREATE PROCEDURE concluir_tarefa (
@@ -92,8 +93,8 @@ BEGIN
     SELECT COUNT(*)
     INTO qtd_tarefa
     FROM tarefa
-    WHERE tarefa_id = p_id
-      AND usuario_id = p_user;
+    WHERE tarefa_id = p_tarefa_id
+      AND usuario_id = p_usuario_id;
 
     IF qtd_tarefa = 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -104,7 +105,7 @@ BEGIN
     SELECT COUNT(*)
     INTO qtd_subtarefas
     FROM subtarefa
-    WHERE tarefa_id = p_id
+    WHERE tarefa_id = p_tarefa_id
       AND concluida = FALSE;
 
     IF qtd_subtarefas > 0 THEN
@@ -113,15 +114,15 @@ BEGIN
             'Existem subtarefas pendentes';
     END IF;
 
-
     UPDATE tarefa
     SET concluida = TRUE
-    WHERE tarefa_id = p_id;
+    WHERE tarefa_id = p_tarefa_id;
+
 
     INSERT INTO logs (usuario_id, acao)
     VALUES (
-        p_user,
-        CONCAT('CONCLUIDA_', p_id)
+        p_usuario_id,
+        CONCAT('CONCLUIDA_', p_tarefa_id)
     );
 
 END$$
