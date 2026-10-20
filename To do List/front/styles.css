@@ -58,5 +58,8 @@ button {
    cursor: pointer;
    transition: 0,2s;
    
-
+.concluida {
+   text-decoration: line-through;
+   color: gray;
+}
 
