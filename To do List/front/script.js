@@ -34,4 +34,17 @@ botaoExcluir.addEventListener("click", function() {
     tarefa.remove();
 });
 tarefa.appendChild(botaoexcluir);
-                              
+
+const botaoConcluir = document.createElement("button");
+botaoConcluir.textContent = "concluir";
+
+botaoConcluir.addEventListener("click", function() {
+    tarefa.classlist.toggle("concluida");
+
+    if (tarefa.classlist.contains("concluida")) {
+        botaoConcluir.textContent = "desfazer";
+    } else {
+        botaoConcluir.textContent = "concluir";
+    }
+});
+tarefa.appendChild(botaoConcluir);
