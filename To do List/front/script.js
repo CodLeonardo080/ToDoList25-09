@@ -27,7 +27,7 @@ function renderTasks() {
 
 renderTasks();
 
-const botaoExcluir = document.createElement("button);
+const botaoExcluir = document.createElement("button");
 botaoExcluir.textContent = "excluir";
 
 botaoExcluir.addEventListener("click", function() {
